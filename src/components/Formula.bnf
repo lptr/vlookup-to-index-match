@@ -1,9 +1,10 @@
 { ws=explicit }
-Formula ::= "="? Expression
-Expression ::= Primitive | Reference | FunctionCall | Identifier
-
-FunctionCall ::= Identifier FunctionArguments {ws=implicit}
+Formula ::= "="? Expression { ws=implicit }
+Expression ::= Literal | Reference | FunctionCall | Identifier { ws=implicit }
+FunctionCall ::= Identifier FunctionArguments { ws=implicit }
 FunctionArguments ::= "(" ( Expression (WS* ";" WS* Expression)* )? ")" { pin=1, ws=implicit }
+
+Literal ::= Number | Boolean | String { ws=implicit }
 
 Reference ::= GlobalReference | LocalReference
 GlobalReference ::= Sheet "!" LocalReference
@@ -21,8 +22,6 @@ RowAddress ::= "$" Row | Row
 Row ::= NUMBER
 ColumnAddress ::= "$" Column | Column
 Column ::= LETTER LETTER | LETTER
-
-Primitive ::= Number | Boolean | String
 
 Number ::= "-"? ("0" | [1-9] [0-9]*) ("." [0-9]+)? (("e" | "E") ( "-" | "+" )? ("0" | [1-9] [0-9]*))?
 Integer ::= "0" | [1-9] [0-9]*
