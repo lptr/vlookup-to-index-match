@@ -188,14 +188,17 @@ argumentSeparator.value = ";";
     </select>
   </div>
   <h3>Transformed formula:</h3>
-  <pre>{{ transformed }}<span class="unparsed">{{ unparsed }}</span></pre>
+  <div class="result">{{ transformed }}<span class="unparsed">{{ unparsed }}</span></div>
 </template>
 
 <style scoped>
+.result,
 textarea.input {
   font-family: monospace;
   width: 40rem;
   height: 10rem;
+  display: inline-block;
+  white-space: pre;
 }
 .unparsed {
   color: red;
