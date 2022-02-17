@@ -36,7 +36,7 @@ RelativeColumnAddress ::= ( LETTER LETTER | LETTER )
 
 Number ::= "-"? ("0" | [1-9] [0-9]*) ("." [0-9]+)? (("e" | "E") ( "-" | "+" )? ("0" | [1-9] [0-9]*))?
 Integer ::= "0" | [1-9] [0-9]*
-Boolean ::= "TRUE" | "FALSE" | "true" | "false"
+Boolean ::= ("TRUE" | "FALSE" | "true" | "false") !IDENTIFIER_CHAR
 
 Identifier ::= IDENTIFIER_FIRST_CHAR IDENTIFIER_CHAR* | "'" NON_SINGLE_QUTE* "'"
 
