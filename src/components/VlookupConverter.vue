@@ -22,6 +22,7 @@ function getTerminalType(ast: IToken): string | null {
 
 function transform(ast: IToken): string {
   switch (ast.type) {
+    case "Formula":
     case "Expression":
       return ast.children.map(transform).join("");
     case "FunctionCall":
@@ -41,9 +42,9 @@ function transform(ast: IToken): string {
           throw `sorted must be a boolean, not ${sortedType}`;
         }
         const matchSort = isSorted.text === "TRUE" ? 1 : 0;
-        return `INDEX(${valueRange}, MATCH(${transform(
+        return `INDEX(${valueRange}; MATCH(${transform(
           key
-        )}, ${keyRange}, ${matchSort})`;
+        )}; ${keyRange}; ${matchSort})`;
       } else {
         return ast.children.map(transform).join("");
       }
@@ -65,14 +66,16 @@ watch(formula, (formula) => {
 </script>
 
 <template>
-  <label>VLOOKUP:</label>
-  <input v-model="formula" />
-  <p>Formula: {{ formula }}</p>
-  <p>Transformed: {{ transformed }}</p>
+  <p>VLOOKUP:</p>
+  <textarea class="input" v-model="formula" />
+  <p>Transformed:</p>
+  <pre>{{ transformed }}</pre>
 </template>
 
 <style scoped>
-input {
+textarea.input {
   font-family: monospace;
+  width: 40rem;
+  height: 10rem;
 }
 </style>
