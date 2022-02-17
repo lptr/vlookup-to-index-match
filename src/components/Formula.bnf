@@ -1,0 +1,47 @@
+<Expression> ::= <Primitive> | <Reference> | <Function> | <Identifier>
+
+<Function> ::= <FunctionName> "(" <ParameterList> ")"
+<FunctionName> ::= <Identifier>
+<ParameterList> ::= <Expression> ";" <ParameterList> | <Expression>
+
+<Identifier> ::= <RULE_IDENTIFIER>
+
+<Reference> ::= <GlobalReference> | <LocalReference>
+<GlobalReference> ::= <Sheet> "!" <LocalReference>
+<LocalReference> ::= <CellAddress> | <Range> | <Vector>
+
+<Sheet> ::= <RULE_TEXT>
+
+<Range> ::= <CellAddress> ":" <CellAddress>
+<Vector> ::= <ColumnRange> | <RowRange>
+<ColumnRange> ::= <ColumnAddress> ":" <ColumnAddress>
+<RowRange> ::= <RowAddress> ":" <RowAddress>
+
+<CellAddress> ::= <ColumnAddress> <RowAddress>
+<RowAddress> ::= "$" <Row> | <Row>
+<Row> ::= <RULE_NUMBER>
+<ColumnAddress> ::= "$" <Column> | <Column>
+<Column> ::= <RULE_LETTER> <RULE_LETTER> | <RULE_LETTER>
+
+<Primitive> ::= <Number> | <Boolean> | <String>
+
+<Number> ::= "+" <RULE_NUMBER> | "-" <RULE_NUMBER> | <RULE_NUMBER>
+<Boolean> ::= "TRUE" | "FALSE"
+<String> ::= '"' <RULE_TEXT> '"'
+
+
+<RULE_IDENTIFIER> ::= <RULE_IDENTIFIER_FIRST_CHAR> <RULE_IDENTIFIER_PART> | <RULE_IDENTIFIER_FIRST_CHAR>
+<RULE_TEXT> ::= <RULE_CHARACTER> <RULE_TEXT> | <RULE_CHARACTER>
+<RULE_IDENTIFIER_PART> ::= <RULE_IDENTIFIER_CHAR> <RULE_IDENTIFIER_PART> | <RULE_IDENTIFIER_CHAR>
+<RULE_IDENTIFIER_FIRST_CHAR> ::= <RULE_LETTER> | "_"
+<RULE_IDENTIFIER_CHAR> ::= <RULE_LETTER> | <RULE_NUMBER> | "_"
+
+
+<RULE_CHARACTER> ::= <RULE_LETTER> | <RULE_DIGIT>
+<RULE_LETTER> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
+
+<RULE_NUMBER> ::= <RULE_DIGIT> <RULE_NUMBER> | <RULE_DIGIT>
+<RULE_DIGIT> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+<RULE_WHITESPACE> ::= <RULE_WS> | ""
+<RULE_WS> ::= " " <RULE_WHITESPACE> | <EOL> <RULE_WHITESPACE> | " " | <EOL>

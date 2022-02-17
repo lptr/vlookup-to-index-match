@@ -1,5 +1,15 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { Grammars } from "ebnf";
+import formulaGrammar from "./Formula.bnf?raw";
+
+console.log(formulaGrammar);
+
+const parser = new Grammars.BNF.Parser(formulaGrammar);
+
+const ast = parser.getAST("VLOOKUP(F2;tech!B:F;5;FALSE)");
+console.log(ast);
+// console.log(parser.getAST("-122 + 2"));
 
 const text = ref("=VLOOKUP(F2;tech!B:F;5;FALSE)");
 watch(text, (text) => {
