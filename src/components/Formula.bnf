@@ -1,4 +1,5 @@
 { ws=explicit }
+Formula ::= "="? Expression
 Expression ::= Primitive | Reference | FunctionCall | Identifier
 
 FunctionCall ::= Identifier FunctionArguments {ws=implicit}
