@@ -57,7 +57,7 @@ function transform(ast: IToken): string {
     default: {
       let result = ast.text;
       const offset = ast.start;
-      ast.children.reverse().forEach((child) => {
+      ast.children.slice().reverse().forEach((child) => {
         result =
           result.slice(0, child.start - offset) +
           transform(child) +
