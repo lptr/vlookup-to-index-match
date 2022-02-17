@@ -5,13 +5,14 @@ Expression ::= RelExpression (WS* ('=' | '<>') WS* RelExpression)? { simplifyWhe
 RelExpression ::= AddExpression (WS* ('>=' | '<=' | '>' | '<') WS* AddExpression)? { simplifyWhenOneChildren=true }
 AddExpression ::= MulExpression (WS* ('+' | '-') WS* MulExpression)? { simplifyWhenOneChildren=true }
 MulExpression ::= UnaryExpression (WS* ('*' | '/') WS* UnaryExpression)? { simplifyWhenOneChildren=true }
-UnaryExpression ::=  UnaryMinus | FunctionCall | Reference | Literal | Identifier { simplifyWhenOneChildren=true }
+UnaryExpression ::=  UnaryMinus | FunctionCall | ParenExpression | Reference | Literal | Identifier { simplifyWhenOneChildren=true }
 UnaryMinus ::= !Number '-' RelExpression { pin=2 }
 
 FunctionCall ::= Identifier FunctionArguments { ws=implicit }
 FunctionArguments ::= "(" ( Expression (WS* ARGUMENT_SEPARATOR WS* Expression)* )? ")" { pin=1, ws=implicit }
 
 Literal ::= Number | Boolean | String { ws=implicit }
+ParenExpression ::= '(' WS* Expression WS* ')' { pin=3, recoverUntil=CLOSE_PAREN }
 
 Reference ::= GlobalReference | LocalReference
 GlobalReference ::= Sheet "!" LocalReference
@@ -41,6 +42,7 @@ IDENTIFIER_CHAR ::= ![\s!()] !"'" !'"' !ARGUMENT_SEPARATOR CHAR
 CHARACTER ::= LETTER | DIGIT
 LETTER ::= [a-zA-Z]
 DIGIT ::= [0-9]
+CLOSE_PAREN ::= ")"
 
 String           ::= '"' NON_DOUBLE_QUOTE* '"'
 NON_SINGLE_QUTE  ::= !"'" CHAR
