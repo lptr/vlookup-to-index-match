@@ -26,6 +26,20 @@ function getTerminalType(ast: IToken): string | null {
   }
 }
 
+function unpackTo(ast: IToken, type: string): IToken {
+  if (ast.type === type) {
+    return ast;
+  }
+  if (ast.children.length === 1) {
+    return unpackTo(ast.children[0], type);
+  }
+  throw new Error(`Expected ${type} got: ${ast.type}`);
+}
+
+function asNumber(ast: IToken): number {
+  return parseFloat(unpackTo(ast, "Number").text);
+}
+
 function transform(
   ast: IToken,
   transformer: (ast: IToken, callback: (ast: IToken) => string) => string | null
@@ -50,6 +64,68 @@ function transform(
   }
 }
 
+function incrementColumn(value: string): string {
+  let carry = 1;
+  let res = "";
+
+  for (let i = value.length - 1; i >= 0; i--) {
+    let char = value.toUpperCase().charCodeAt(i);
+
+    char += carry;
+
+    if (char > 90) {
+      char = 65;
+      carry = 1;
+    } else {
+      carry = 0;
+    }
+
+    res = String.fromCharCode(char) + res;
+
+    if (!carry) {
+      res = value.substring(0, i) + res;
+      break;
+    }
+  }
+
+  if (carry) {
+    res = "A" + res;
+  }
+
+  return res;
+}
+
+function columnAt(ast: IToken, offset: number): string {
+  const reference = unpackTo(ast, "Reference");
+  return transform(reference, (ast, callback) => {
+    if (ast.type === "Range") {
+      const start = ast.children[0];
+      const end = ast.children[1];
+      let column = "UNKNOWN";
+      const startResult = transform(start, (ast, callback) => {
+        if (ast.type === "ColumnAddress") {
+          column = ast.text;
+          for (let i = 0; i < offset; i++) {
+            column = incrementColumn(column);
+          }
+          return column;
+        } else {
+          return null;
+        }
+      });
+      const endResult = transform(end, (ast, callback) => {
+        if (ast.type === "ColumnAddress") {
+          return column;
+        } else {
+          return null;
+        }
+      });
+      return `${startResult}:${endResult}`;
+    }
+    return null;
+  });
+}
+
 function transformVlookup(
   ast: IToken,
   callback: (ast: IToken) => string
@@ -66,8 +142,8 @@ function transformVlookup(
     const offset = args[2];
     const isSorted = args[3];
 
-    const keyRange = range.text;
-    const valueRange = range.text;
+    const keyRange = columnAt(range, 0);
+    const valueRange = columnAt(range, asNumber(offset) - 1);
 
     const sortedType = getTerminalType(isSorted);
     if (sortedType !== "Boolean") {
