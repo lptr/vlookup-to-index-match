@@ -19,27 +19,25 @@ RowRange ::= RowAddress ":" RowAddress
 
 Address ::= CellAddress | ColumnAddress | RowAddress
 CellAddress ::= ColumnAddress RowAddress
-RowAddress ::= "$" Row | Row
-Row ::= NUMBER
-ColumnAddress ::= "$" Column | Column
-Column ::= LETTER LETTER | LETTER
+RowAddress ::= "$"? DIGIT+
+ColumnAddress ::= "$"? ( LETTER LETTER | LETTER )
 
 Number ::= "-"? ("0" | [1-9] [0-9]*) ("." [0-9]+)? (("e" | "E") ( "-" | "+" )? ("0" | [1-9] [0-9]*))?
 Integer ::= "0" | [1-9] [0-9]*
 Boolean ::= "TRUE" | "FALSE"
 
-Identifier ::= IDENTIFIER_FIRST_CHAR IDENTIFIER_CHAR*
+Identifier ::= IDENTIFIER_FIRST_CHAR IDENTIFIER_CHAR* | "'" NON_SINGLE_QUTE* "'"
 
-IDENTIFIER_FIRST_CHAR ::= LETTER | "_"
-IDENTIFIER_CHAR ::= LETTER | NUMBER | "_"
+IDENTIFIER_FIRST_CHAR ::= ![0-9] IDENTIFIER_CHAR
+IDENTIFIER_CHAR ::= ![\s!()] !"'" !'"' !ARGUMENT_SEPARATOR CHAR
 
 CHARACTER ::= LETTER | DIGIT
-LETTER ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
-
-NUMBER ::= DIGIT NUMBER | DIGIT
+LETTER ::= [a-zA-Z]
 DIGIT ::= [0-9]
 
-String          ::= '"' CHAR* '"'
-CHAR            ::= !"$" UNESCAPED
-UNESCAPED       ::= [#x20-#x21] | [#x23-#x5B] | [#x5D-#xFFFF]
-WS              ::= [#x20#x09#x0A#x0D]+
+String           ::= '"' NON_DOUBLE_QUOTE* '"'
+NON_SINGLE_QUTE  ::= !"'" CHAR
+NON_DOUBLE_QUOTE ::= !'"' CHAR
+CHAR             ::= !"$" UNESCAPED
+UNESCAPED        ::= [#x20-#x21] | [#x23-#x5B] | [#x5D-#xFFFF]
+WS               ::= [#x20#x09#x0A#x0D]+
