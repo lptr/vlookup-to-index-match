@@ -1,47 +1,44 @@
-<Expression> ::= <Primitive> | <Reference> | <Function> | <Identifier>
+{ ws=explicit }
+Expression ::= Primitive | Reference | FunctionCall | Identifier
 
-<Function> ::= <FunctionName> "(" <ParameterList> ")"
-<FunctionName> ::= <Identifier>
-<ParameterList> ::= <Expression> ";" <ParameterList> | <Expression>
+FunctionCall ::= Identifier FunctionArguments {ws=implicit}
+FunctionArguments ::= "(" ( Expression (WS* ";" WS* Expression)* )? ")" { pin=1, ws=implicit }
 
-<Identifier> ::= <RULE_IDENTIFIER>
+Reference ::= GlobalReference | LocalReference
+GlobalReference ::= Sheet "!" LocalReference
+LocalReference ::= CellAddress | Range | Vector
 
-<Reference> ::= <GlobalReference> | <LocalReference>
-<GlobalReference> ::= <Sheet> "!" <LocalReference>
-<LocalReference> ::= <CellAddress> | <Range> | <Vector>
+Sheet ::= Identifier
 
-<Sheet> ::= <RULE_TEXT>
+Range ::= CellAddress ":" CellAddress
+Vector ::= ColumnRange | RowRange
+ColumnRange ::= ColumnAddress ":" ColumnAddress
+RowRange ::= RowAddress ":" RowAddress
 
-<Range> ::= <CellAddress> ":" <CellAddress>
-<Vector> ::= <ColumnRange> | <RowRange>
-<ColumnRange> ::= <ColumnAddress> ":" <ColumnAddress>
-<RowRange> ::= <RowAddress> ":" <RowAddress>
+CellAddress ::= ColumnAddress RowAddress
+RowAddress ::= "$" Row | Row
+Row ::= NUMBER
+ColumnAddress ::= "$" Column | Column
+Column ::= LETTER LETTER | LETTER
 
-<CellAddress> ::= <ColumnAddress> <RowAddress>
-<RowAddress> ::= "$" <Row> | <Row>
-<Row> ::= <RULE_NUMBER>
-<ColumnAddress> ::= "$" <Column> | <Column>
-<Column> ::= <RULE_LETTER> <RULE_LETTER> | <RULE_LETTER>
+Primitive ::= Number | Boolean | String
 
-<Primitive> ::= <Number> | <Boolean> | <String>
+Number ::= "-"? ("0" | [1-9] [0-9]*) ("." [0-9]+)? (("e" | "E") ( "-" | "+" )? ("0" | [1-9] [0-9]*))?
+Integer ::= "0" | [1-9] [0-9]*
+Boolean ::= "TRUE" | "FALSE"
 
-<Number> ::= "+" <RULE_NUMBER> | "-" <RULE_NUMBER> | <RULE_NUMBER>
-<Boolean> ::= "TRUE" | "FALSE"
-<String> ::= '"' <RULE_TEXT> '"'
+Identifier ::= IDENTIFIER_FIRST_CHAR IDENTIFIER_CHAR*
 
+IDENTIFIER_FIRST_CHAR ::= LETTER | "_"
+IDENTIFIER_CHAR ::= LETTER | NUMBER | "_"
 
-<RULE_IDENTIFIER> ::= <RULE_IDENTIFIER_FIRST_CHAR> <RULE_IDENTIFIER_PART> | <RULE_IDENTIFIER_FIRST_CHAR>
-<RULE_TEXT> ::= <RULE_CHARACTER> <RULE_TEXT> | <RULE_CHARACTER>
-<RULE_IDENTIFIER_PART> ::= <RULE_IDENTIFIER_CHAR> <RULE_IDENTIFIER_PART> | <RULE_IDENTIFIER_CHAR>
-<RULE_IDENTIFIER_FIRST_CHAR> ::= <RULE_LETTER> | "_"
-<RULE_IDENTIFIER_CHAR> ::= <RULE_LETTER> | <RULE_NUMBER> | "_"
+CHARACTER ::= LETTER | DIGIT
+LETTER ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
 
+NUMBER ::= DIGIT NUMBER | DIGIT
+DIGIT ::= [0-9]
 
-<RULE_CHARACTER> ::= <RULE_LETTER> | <RULE_DIGIT>
-<RULE_LETTER> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
-
-<RULE_NUMBER> ::= <RULE_DIGIT> <RULE_NUMBER> | <RULE_DIGIT>
-<RULE_DIGIT> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
-
-<RULE_WHITESPACE> ::= <RULE_WS> | ""
-<RULE_WS> ::= " " <RULE_WHITESPACE> | <EOL> <RULE_WHITESPACE> | " " | <EOL>
+String          ::= '"' CHAR* '"'
+CHAR            ::= !"$" UNESCAPED
+UNESCAPED       ::= [#x20-#x21] | [#x23-#x5B] | [#x5D-#xFFFF]
+WS              ::= [#x20#x09#x0A#x0D]+

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { Grammars } from "ebnf";
+import { Grammars, Parser } from "ebnf";
 import formulaGrammar from "./Formula.bnf?raw";
 
 console.log(formulaGrammar);
 
-const parser = new Grammars.BNF.Parser(formulaGrammar);
+const RULES = Grammars.Custom.getRules(formulaGrammar);
+console.log(RULES);
+const parser = new Parser(RULES, {});
 
 const ast = parser.getAST("VLOOKUP(F2;tech!B:F;5;FALSE)");
 console.log(ast);
