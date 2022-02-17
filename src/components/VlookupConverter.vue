@@ -9,9 +9,6 @@ const RULES = Grammars.Custom.getRules(formulaGrammar);
 console.log(RULES);
 const parser = new Parser(RULES, {});
 
-const ast = parser.getAST("VLOOKUP(F2;tech!B:F;5;FALSE)");
-console.log(ast);
-
 function getTerminalType(ast: IToken): string | null {
   switch (ast.children.length) {
     case 0:
@@ -54,18 +51,24 @@ function transform(ast: IToken): string {
       return ast.text;
   }
 }
-console.log("Transformed:", transform(ast));
 
-const text = ref("=VLOOKUP(F2;tech!B:F;5;FALSE)");
-watch(text, (text) => {
-  console.log(text);
+const formula = ref("=VLOOKUP(F2;tech!B:F;5;FALSE)");
+const transformed = ref("");
+
+watch(formula, (formula) => {
+  console.log(formula);
+  const ast = parser.getAST(formula);
+  console.log(ast);
+  transformed.value = transform(ast);
+  console.log("Transformed:", transformed.value);
 });
 </script>
 
 <template>
   <label>VLOOKUP:</label>
-  <p>Message is: {{ text }}</p>
-  <input v-model="text" />
+  <input v-model="formula" />
+  <p>Formula: {{ formula }}</p>
+  <p>Transformed: {{ transformed }}</p>
 </template>
 
 <style scoped>
