@@ -3,7 +3,8 @@ Formula ::= "="? Expression { ws=implicit }
 
 Expression ::= AddExpression (WS* ('=' | '<>' | '>=' | '<=' | '>' | '<') WS* Expression)? { simplifyWhenOneChildren=true }
 AddExpression ::= MulExpression (WS* ('+' | '-') WS* AddExpression)? { simplifyWhenOneChildren=true }
-MulExpression ::= UnaryExpression (WS* ('*' | '/') WS* MulExpression)? { simplifyWhenOneChildren=true }
+MulExpression ::= PowExpression (WS* ('*' | '/') WS* MulExpression)? { simplifyWhenOneChildren=true }
+PowExpression ::= UnaryExpression (WS* '^' WS* PowExpression)? { simplifyWhenOneChildren=true }
 UnaryExpression ::=  UnaryMinus | FunctionCall | ParenExpression | Reference | Literal | Identifier { simplifyWhenOneChildren=true }
 UnaryMinus ::= !Number '-' AddExpression { pin=2 }
 
