@@ -26,48 +26,59 @@ function getTerminalType(ast: IToken): string | null {
   }
 }
 
-function transform(ast: IToken): string {
-  switch (ast.type) {
-    case "FunctionCall":
-      if (
-        ast.children[0].text.toUpperCase() === "VLOOKUP" &&
-        ast.children[1].children.length === 4
-      ) {
-        const args = ast.children[1].children;
-        console.log("Found VLOOKUP", args);
-        const key = args[0];
-        const range = args[1];
-        const offset = args[2];
-        const isSorted = args[3];
+function transform(
+  ast: IToken,
+  transformer: (ast: IToken, callback: (ast: IToken) => string) => string | null
+): string {
+  const reTransform = (ast: IToken) => transform(ast, transformer);
+  const transformed = transformer(ast, reTransform);
+  if (transformed !== null) {
+    return transformed;
+  } else {
+    let result = ast.text;
+    const offset = ast.start;
+    ast.children
+      .slice()
+      .reverse()
+      .forEach((child) => {
+        result =
+          result.slice(0, child.start - offset) +
+          reTransform(child) +
+          result.slice(child.end - offset);
+      });
+    return result;
+  }
+}
 
-        const keyRange = range.text;
-        const valueRange = range.text;
+function transformVlookup(
+  ast: IToken,
+  callback: (ast: IToken) => string
+): string | null {
+  if (
+    ast.type == "FunctionCall" &&
+    ast.children[0].text.toUpperCase() === "VLOOKUP" &&
+    ast.children[1].children.length === 4
+  ) {
+    const args = ast.children[1].children;
+    console.log("Found VLOOKUP", args);
+    const key = args[0];
+    const range = args[1];
+    const offset = args[2];
+    const isSorted = args[3];
 
-        const sortedType = getTerminalType(isSorted);
-        if (sortedType !== "Boolean") {
-          throw `sorted must be a boolean, not ${sortedType}`;
-        }
-        const matchSort = isSorted.text.toUpperCase() === "TRUE" ? 1 : 0;
-        return `INDEX(${valueRange}${argumentSeparator} MATCH(${transform(
-          key
-        )}${argumentSeparator} ${keyRange}${argumentSeparator} ${matchSort})`;
-      } else {
-        return ast.children.map(transform).join("");
-      }
-    default: {
-      let result = ast.text;
-      const offset = ast.start;
-      ast.children
-        .slice()
-        .reverse()
-        .forEach((child) => {
-          result =
-            result.slice(0, child.start - offset) +
-            transform(child) +
-            result.slice(child.end - offset);
-        });
-      return result;
+    const keyRange = range.text;
+    const valueRange = range.text;
+
+    const sortedType = getTerminalType(isSorted);
+    if (sortedType !== "Boolean") {
+      throw `sorted must be a boolean, not ${sortedType}`;
     }
+    const matchSort = isSorted.text.toUpperCase() === "TRUE" ? 1 : 0;
+    return `INDEX(${valueRange}${argumentSeparator} MATCH(${callback(
+      key
+    )}${argumentSeparator} ${keyRange}${argumentSeparator} ${matchSort})`;
+  } else {
+    return null;
   }
 }
 
@@ -84,9 +95,10 @@ watch(formula, (formula) => {
     unparsed.value = formula;
   } else {
     try {
-      transformed.value = transform(ast);
+      transformed.value = transform(ast, transformVlookup);
       unparsed.value = ast.rest;
     } catch (e: any) {
+      console.error(e);
       transformed.value = "Failed to transform";
       unparsed.value = e;
     }
