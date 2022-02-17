@@ -4,6 +4,7 @@ import { Grammars, IToken, Parser } from "ebnf";
 import formulaGrammar from "./Formula.bnf?raw";
 
 const argumentSeparator = ref("");
+const errors = ref<unknown[]>();
 
 console.log(formulaGrammar);
 
@@ -159,20 +160,33 @@ watch(formula, (formula) => {
   console.log(formula);
   const ast = parser.getAST(formula);
   console.log(ast);
+  let errorsEncountered: unknown[] = [];
   if (ast === null) {
-    transformed.value = "Failed to parse: ";
+    transformed.value = "";
     unparsed.value = formula;
+    errorsEncountered.push("Failed to parse");
   } else {
     try {
       transformed.value = transform(ast, transformVlookup);
       unparsed.value = ast.rest;
-    } catch (e: any) {
+      errorsEncountered = errorsEncountered.concat(ast.errors);
+    } catch (e) {
+      transformed.value = "";
+      unparsed.value = formula;
       console.error(e);
-      transformed.value = "Failed to transform: ";
-      unparsed.value = e;
+
+      let error: string;
+      if (e instanceof Error) {
+        error = e.message;
+      } else {
+        error = `${e}`;
+      }
+      errorsEncountered.push(error);
     }
   }
   console.log("Transformed:", transformed.value);
+  console.log("Errors", errorsEncountered);
+  errors.value = errorsEncountered;
 });
 
 argumentSeparator.value = ";";
@@ -188,7 +202,15 @@ argumentSeparator.value = ";";
     </select>
   </div>
   <h3>Transformed formula:</h3>
-  <div class="result">{{ transformed }}<span class="unparsed">{{ unparsed }}</span></div>
+  <div class="result">
+    {{ transformed }}<span class="unparsed">{{ unparsed }}</span>
+  </div>
+  <div class="errors" v-if="errors?.length">
+    <ul>
+      <!-- eslint-disable-next-line vue/require-v-for-key -->
+      <li v-for="error in errors">{{ error }}</li>
+    </ul>
+  </div>
 </template>
 
 <style scoped>
@@ -199,7 +221,9 @@ textarea.input {
   height: 10rem;
   display: inline-block;
   white-space: pre-wrap;
+  border: 1px solid;
 }
+.errors,
 .unparsed {
   color: red;
 }
