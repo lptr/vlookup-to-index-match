@@ -16,7 +16,7 @@ function unpackTo(ast: IToken, type: string): IToken {
   if (ast.children.length === 1) {
     return unpackTo(ast.children[0], type);
   }
-  throw new Error(`Expected ${type} got: ${ast.type}`);
+  throw new Error(`Expected ${type} got ${ast.type}: ${ast.text}`);
 }
 
 function asNumber(ast: IToken): number {
@@ -160,7 +160,7 @@ watch(formula, (formula) => {
   const ast = parser.getAST(formula);
   console.log(ast);
   if (ast === null) {
-    transformed.value = "Failed to parse";
+    transformed.value = "Failed to parse: ";
     unparsed.value = formula;
   } else {
     try {
@@ -168,7 +168,7 @@ watch(formula, (formula) => {
       unparsed.value = ast.rest;
     } catch (e: any) {
       console.error(e);
-      transformed.value = "Failed to transform";
+      transformed.value = "Failed to transform: ";
       unparsed.value = e;
     }
   }
