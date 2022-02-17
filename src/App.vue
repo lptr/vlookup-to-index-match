@@ -23,8 +23,14 @@ import VlookupConverter from "./components/VlookupConverter.vue";
 <style>
 @import "./assets/base.css";
 
+h1 {
+  font-size: 2rem;
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
 main {
-  padding: 1rem;
+  padding: 2rem;
 
   font-weight: normal;
 }
