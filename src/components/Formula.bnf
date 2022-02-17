@@ -2,7 +2,7 @@
 Formula ::= "="? Expression { ws=implicit }
 Expression ::= Literal | Reference | FunctionCall | Identifier { ws=implicit }
 FunctionCall ::= Identifier FunctionArguments { ws=implicit }
-FunctionArguments ::= "(" ( Expression (WS* ";" WS* Expression)* )? ")" { pin=1, ws=implicit }
+FunctionArguments ::= "(" ( Expression (WS* ARGUMENT_SEPARATOR WS* Expression)* )? ")" { pin=1, ws=implicit }
 
 Literal ::= Number | Boolean | String { ws=implicit }
 

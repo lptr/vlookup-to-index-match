@@ -3,9 +3,15 @@ import { ref, watch } from "vue";
 import { Grammars, IToken, Parser } from "ebnf";
 import formulaGrammar from "./Formula.bnf?raw";
 
+const argumentSeparator = ";";
+
 console.log(formulaGrammar);
 
-const RULES = Grammars.Custom.getRules(formulaGrammar);
+const RULES = Grammars.Custom.getRules(formulaGrammar).concat(
+  Grammars.Custom.getRules(`
+ARGUMENT_SEPARATOR ::= "${argumentSeparator}"
+`)
+);
 console.log(RULES);
 const parser = new Parser(RULES, {});
 
@@ -42,9 +48,9 @@ function transform(ast: IToken): string {
           throw `sorted must be a boolean, not ${sortedType}`;
         }
         const matchSort = isSorted.text === "TRUE" ? 1 : 0;
-        return `INDEX(${valueRange}; MATCH(${transform(
+        return `INDEX(${valueRange}${argumentSeparator} MATCH(${transform(
           key
-        )}; ${keyRange}; ${matchSort})`;
+        )}${argumentSeparator} ${keyRange}${argumentSeparator} ${matchSort})`;
       } else {
         return ast.children.map(transform).join("");
       }
@@ -53,16 +59,22 @@ function transform(ast: IToken): string {
   }
 }
 
-const formula = ref("=VLOOKUP(F2;tech!B:F;5;FALSE)");
+const formula = ref("");
 const transformed = ref("");
 
 watch(formula, (formula) => {
   console.log(formula);
   const ast = parser.getAST(formula);
   console.log(ast);
-  transformed.value = transform(ast);
+  if (ast === null) {
+    transformed.value = "Failed to parse";
+  } else {
+    transformed.value = transform(ast);
+  }
   console.log("Transformed:", transformed.value);
 });
+
+formula.value = "=VLOOKUP(F2;tech!B:F;5;FALSE)";
 </script>
 
 <template>
