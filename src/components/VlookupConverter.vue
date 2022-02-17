@@ -30,7 +30,7 @@ function transform(ast: IToken): string {
   switch (ast.type) {
     case "FunctionCall":
       if (
-        ast.children[0].text === "VLOOKUP" &&
+        ast.children[0].text.toUpperCase() === "VLOOKUP" &&
         ast.children[1].children.length === 4
       ) {
         const args = ast.children[1].children;
@@ -47,7 +47,7 @@ function transform(ast: IToken): string {
         if (sortedType !== "Boolean") {
           throw `sorted must be a boolean, not ${sortedType}`;
         }
-        const matchSort = isSorted.text === "TRUE" ? 1 : 0;
+        const matchSort = isSorted.text.toUpperCase() === "TRUE" ? 1 : 0;
         return `INDEX(${valueRange}${argumentSeparator} MATCH(${transform(
           key
         )}${argumentSeparator} ${keyRange}${argumentSeparator} ${matchSort})`;
@@ -57,12 +57,15 @@ function transform(ast: IToken): string {
     default: {
       let result = ast.text;
       const offset = ast.start;
-      ast.children.slice().reverse().forEach((child) => {
-        result =
-          result.slice(0, child.start - offset) +
-          transform(child) +
-          result.slice(child.end - offset);
-      });
+      ast.children
+        .slice()
+        .reverse()
+        .forEach((child) => {
+          result =
+            result.slice(0, child.start - offset) +
+            transform(child) +
+            result.slice(child.end - offset);
+        });
       return result;
     }
   }
@@ -80,8 +83,13 @@ watch(formula, (formula) => {
     transformed.value = "Failed to parse";
     unparsed.value = formula;
   } else {
-    transformed.value = transform(ast);
-    unparsed.value = ast.rest;
+    try {
+      transformed.value = transform(ast);
+      unparsed.value = ast.rest;
+    } catch (e: any) {
+      transformed.value = "Failed to transform";
+      unparsed.value = e;
+    }
   }
   console.log("Transformed:", transformed.value);
 });
