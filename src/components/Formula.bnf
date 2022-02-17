@@ -1,6 +1,13 @@
 { ws=explicit }
 Formula ::= "="? Expression { ws=implicit }
-Expression ::= Literal | Reference | FunctionCall | Identifier { ws=implicit }
+
+Expression ::= RelExpression (WS* ('=' | '<>') WS* RelExpression)? { simplifyWhenOneChildren=true }
+RelExpression ::= AddExpression (WS* ('>=' | '<=' | '>' | '<') WS* AddExpression)? { simplifyWhenOneChildren=true }
+AddExpression ::= MulExpression (WS* ('+' | '-') WS* MulExpression)? { simplifyWhenOneChildren=true }
+MulExpression ::= UnaryExpression (WS* ('*' | '/') WS* UnaryExpression)? { simplifyWhenOneChildren=true }
+UnaryExpression ::=  UnaryMinus | FunctionCall | Reference | Literal | Identifier { simplifyWhenOneChildren=true }
+UnaryMinus ::= !Number '-' RelExpression { pin=2 }
+
 FunctionCall ::= Identifier FunctionArguments { ws=implicit }
 FunctionArguments ::= "(" ( Expression (WS* ARGUMENT_SEPARATOR WS* Expression)* )? ")" { pin=1, ws=implicit }
 
