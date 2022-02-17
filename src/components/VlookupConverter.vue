@@ -29,6 +29,10 @@ function asNumber(ast: IToken): number {
   return parseFloat(unpackTo(ast, "Number").text);
 }
 
+function asBoolean(ast: IToken): boolean {
+  return unpackTo(ast, "Boolean").text.toUpperCase() === "TRUE";
+}
+
 function transform(
   ast: IToken,
   transformer: (ast: IToken, callback: (ast: IToken) => string) => string
@@ -124,14 +128,14 @@ function transformVlookup(
     const key = args[0];
     const reference = unpackTo(args[1], "Reference");
     const offset = asNumber(args[2]);
-    const isSorted = unpackTo(args[3], "Boolean");
+    const sorted = asBoolean(args[3]);
 
     const keyRange = columnAt(reference, 0);
     const valueRange = columnAt(reference, offset - 1);
-    const matchSort = isSorted.text.toUpperCase() === "TRUE" ? 1 : 0;
+    const matchSort = sorted ? "" : `${argumentSeparator} 0`;
     const transformedKey = callback(key);
 
-    return `INDEX(${valueRange}${argumentSeparator} MATCH(${transformedKey}${argumentSeparator} ${keyRange}${argumentSeparator} ${matchSort})`;
+    return `INDEX(${valueRange}${argumentSeparator} MATCH(${transformedKey}${argumentSeparator} ${keyRange}${matchSort}))`;
   } else {
     return callback(ast);
   }
