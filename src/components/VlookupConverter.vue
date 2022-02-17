@@ -121,14 +121,15 @@ function transformVlookup(
   if (
     ast.type == "FunctionCall" &&
     ast.children[0].text.toUpperCase() === "VLOOKUP" &&
-    ast.children[1].children.length === 4
+    ast.children[1].children.length >= 3 &&
+    ast.children[1].children.length <= 4
   ) {
     const args = ast.children[1].children;
     console.log("Found VLOOKUP", args);
     const key = args[0];
     const reference = unpackTo(args[1], "Reference");
     const offset = asNumber(args[2]);
-    const sorted = asBoolean(args[3]);
+    const sorted = args.length === 4 ? asBoolean(args[3]) : true;
 
     const keyRange = columnAt(reference, 0);
     const valueRange = columnAt(reference, offset - 1);
