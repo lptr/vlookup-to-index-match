@@ -15,17 +15,6 @@ ARGUMENT_SEPARATOR ::= "${argumentSeparator}"
 console.log(RULES);
 const parser = new Parser(RULES, {});
 
-function getTerminalType(ast: IToken): string | null {
-  switch (ast.children.length) {
-    case 0:
-      return ast.type;
-    case 1:
-      return getTerminalType(ast.children[0]);
-    default:
-      return null;
-  }
-}
-
 function unpackTo(ast: IToken, type: string): IToken {
   if (ast.type === type) {
     return ast;
@@ -140,15 +129,11 @@ function transformVlookup(
     const key = args[0];
     const range = args[1];
     const offset = args[2];
-    const isSorted = args[3];
+    const isSorted = unpackTo(args[3], "Boolean");
 
     const keyRange = columnAt(range, 0);
     const valueRange = columnAt(range, asNumber(offset) - 1);
 
-    const sortedType = getTerminalType(isSorted);
-    if (sortedType !== "Boolean") {
-      throw `sorted must be a boolean, not ${sortedType}`;
-    }
     const matchSort = isSorted.text.toUpperCase() === "TRUE" ? 1 : 0;
     return `INDEX(${valueRange}${argumentSeparator} MATCH(${callback(
       key
