@@ -29,10 +29,11 @@ function getTerminalType(ast: IToken): string | null {
 function transform(ast: IToken): string {
   switch (ast.type) {
     case "Formula":
+      return "=" + ast.children.map(transform).join("");
     case "Expression":
       return ast.children.map(transform).join("");
     case "FunctionCall":
-      if (ast.children[0].text === "VLOOKUP") {
+      if (ast.children[0].text === "VLOOKUP" && ast.children.length === 4) {
         const args = ast.children[1].children;
         console.log("Found VLOOKUP", args);
         const key = args[0];
@@ -61,6 +62,7 @@ function transform(ast: IToken): string {
 
 const formula = ref("");
 const transformed = ref("");
+const unparsed = ref("");
 
 watch(formula, (formula) => {
   console.log(formula);
@@ -70,6 +72,7 @@ watch(formula, (formula) => {
     transformed.value = "Failed to parse";
   } else {
     transformed.value = transform(ast);
+    unparsed.value = ast.rest;
   }
   console.log("Transformed:", transformed.value);
 });
@@ -81,7 +84,7 @@ formula.value = "=VLOOKUP(F2;tech!B:F;5;FALSE)";
   <p>VLOOKUP:</p>
   <textarea class="input" v-model="formula" />
   <p>Transformed:</p>
-  <pre>{{ transformed }}</pre>
+  <pre>{{ transformed }}<span class="unparsed">{{ unparsed }}</span></pre>
 </template>
 
 <style scoped>
@@ -89,5 +92,8 @@ textarea.input {
   font-family: monospace;
   width: 40rem;
   height: 10rem;
+}
+.unparsed {
+  color: red;
 }
 </style>
