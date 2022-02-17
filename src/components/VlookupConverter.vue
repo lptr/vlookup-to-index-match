@@ -3,17 +3,11 @@ import { ref, watch } from "vue";
 import { Grammars, IToken, Parser } from "ebnf";
 import formulaGrammar from "./Formula.bnf?raw";
 
-const argumentSeparator = ";";
+const argumentSeparator = ref("");
 
 console.log(formulaGrammar);
 
-const RULES = Grammars.Custom.getRules(formulaGrammar).concat(
-  Grammars.Custom.getRules(`
-ARGUMENT_SEPARATOR ::= "${argumentSeparator}"
-`)
-);
-console.log(RULES);
-const parser = new Parser(RULES, {});
+let parser: Parser;
 
 function unpackTo(ast: IToken, type: string): IToken {
   if (ast.type === type) {
@@ -138,10 +132,10 @@ function transformVlookup(
 
     const keyRange = columnAt(reference, 0);
     const valueRange = columnAt(reference, offset - 1);
-    const matchSort = sorted ? "" : `${argumentSeparator} 0`;
+    const matchSort = sorted ? "" : `${argumentSeparator.value} 0`;
     const transformedKey = callback(key);
 
-    return `INDEX(${valueRange}${argumentSeparator} MATCH(${transformedKey}${argumentSeparator} ${keyRange}${matchSort}))`;
+    return `INDEX(${valueRange}${argumentSeparator.value} MATCH(${transformedKey}${argumentSeparator.value} ${keyRange}${matchSort}))`;
   } else {
     return callback(ast);
   }
@@ -150,6 +144,16 @@ function transformVlookup(
 const formula = ref("");
 const transformed = ref("");
 const unparsed = ref("");
+watch(argumentSeparator, (argumentSeparator) => {
+  const RULES = Grammars.Custom.getRules(formulaGrammar).concat(
+    Grammars.Custom.getRules(`
+ARGUMENT_SEPARATOR ::= "${argumentSeparator}"
+`)
+  );
+  console.log(RULES);
+  parser = new Parser(RULES, {});
+  formula.value = `=VLOOKUP(F2${argumentSeparator}tech!B:F${argumentSeparator}5${argumentSeparator}FALSE)`;
+});
 
 watch(formula, (formula) => {
   console.log(formula);
@@ -171,12 +175,18 @@ watch(formula, (formula) => {
   console.log("Transformed:", transformed.value);
 });
 
-formula.value = "=VLOOKUP(F2;tech!B:F;5;FALSE)";
+argumentSeparator.value = ";";
 </script>
 
 <template>
   <h3>Original formula:</h3>
   <textarea class="input" v-model="formula" />
+  <div>
+    <select v-model="argumentSeparator">
+      <option value=",">Use <code>,</code> as argument separator</option>
+      <option value=";">Use <code>;</code> as argument separator</option>
+    </select>
+  </div>
   <h3>Transformed formula:</h3>
   <pre>{{ transformed }}<span class="unparsed">{{ unparsed }}</span></pre>
 </template>

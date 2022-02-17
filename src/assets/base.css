@@ -63,7 +63,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-input, textarea {
+input, textarea, select {
   color: var(--color-text);
   background: var(--color-background);
 }
