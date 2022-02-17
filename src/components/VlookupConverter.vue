@@ -70,6 +70,7 @@ watch(formula, (formula) => {
   console.log(ast);
   if (ast === null) {
     transformed.value = "Failed to parse";
+    unparsed.value = formula;
   } else {
     transformed.value = transform(ast);
     unparsed.value = ast.rest;
