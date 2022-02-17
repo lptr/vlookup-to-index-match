@@ -41,11 +41,12 @@ Boolean ::= "TRUE" | "FALSE" | "true" | "false"
 Identifier ::= IDENTIFIER_FIRST_CHAR IDENTIFIER_CHAR* | "'" NON_SINGLE_QUTE* "'"
 
 IDENTIFIER_FIRST_CHAR ::= ![0-9] IDENTIFIER_CHAR
-IDENTIFIER_CHAR ::= ![\s!()] !"'" !'"' !ARGUMENT_SEPARATOR CHAR
+IDENTIFIER_CHAR ::= ![\s()] !"'" !'"' !SYMBOL !ARGUMENT_SEPARATOR CHAR
 
 LETTER ::= [a-zA-Z]
 DIGIT ::= [0-9]
 CLOSE_PAREN ::= ")"
+SYMBOL ::= "+" | "-" | "*" | "/" | "^" | "." | "," | "`" | "~" | "!" | "@" | "#" | "$" | "%" | "&" | "?" | "<" | ">" | "=" | "\\" | ":" | ";" | "(" | ")" | "[" | "]" | "{" | "}" | "|"
 
 String           ::= '"' NON_DOUBLE_QUOTE* '"'
 NON_SINGLE_QUTE  ::= !"'" CHAR
