@@ -8,15 +8,16 @@ Literal ::= Number | Boolean | String { ws=implicit }
 
 Reference ::= GlobalReference | LocalReference
 GlobalReference ::= Sheet "!" LocalReference
-LocalReference ::= CellAddress | Range | Vector
+LocalReference ::= Range | Vector | CellAddress
 
 Sheet ::= Identifier
 
-Range ::= CellAddress ":" CellAddress
+Range ::= Address ":" Address
 Vector ::= ColumnRange | RowRange
 ColumnRange ::= ColumnAddress ":" ColumnAddress
 RowRange ::= RowAddress ":" RowAddress
 
+Address ::= CellAddress | ColumnAddress | RowAddress
 CellAddress ::= ColumnAddress RowAddress
 RowAddress ::= "$" Row | Row
 Row ::= NUMBER

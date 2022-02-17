@@ -33,7 +33,7 @@ function transform(ast: IToken): string {
     case "Expression":
       return ast.children.map(transform).join("");
     case "FunctionCall":
-      if (ast.children[0].text === "VLOOKUP" && ast.children.length === 4) {
+      if (ast.children[0].text === "VLOOKUP" && ast.children[1].children.length === 4) {
         const args = ast.children[1].children;
         console.log("Found VLOOKUP", args);
         const key = args[0];
