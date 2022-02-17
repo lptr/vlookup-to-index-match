@@ -28,12 +28,11 @@ function getTerminalType(ast: IToken): string | null {
 
 function transform(ast: IToken): string {
   switch (ast.type) {
-    case "Formula":
-      return "=" + ast.children.map(transform).join("");
-    case "Expression":
-      return ast.children.map(transform).join("");
     case "FunctionCall":
-      if (ast.children[0].text === "VLOOKUP" && ast.children[1].children.length === 4) {
+      if (
+        ast.children[0].text === "VLOOKUP" &&
+        ast.children[1].children.length === 4
+      ) {
         const args = ast.children[1].children;
         console.log("Found VLOOKUP", args);
         const key = args[0];
@@ -55,8 +54,17 @@ function transform(ast: IToken): string {
       } else {
         return ast.children.map(transform).join("");
       }
-    default:
-      return ast.text;
+    default: {
+      let result = ast.text;
+      const offset = ast.start;
+      ast.children.reverse().forEach((child) => {
+        result =
+          result.slice(0, child.start - offset) +
+          transform(child) +
+          result.slice(child.end - offset);
+      });
+      return result;
+    }
   }
 }
 
