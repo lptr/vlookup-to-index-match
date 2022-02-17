@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { Grammars, Parser } from "ebnf";
+import { Grammars, IToken, Parser } from "ebnf";
 import formulaGrammar from "./Formula.bnf?raw";
 
 console.log(formulaGrammar);
@@ -11,7 +11,50 @@ const parser = new Parser(RULES, {});
 
 const ast = parser.getAST("VLOOKUP(F2;tech!B:F;5;FALSE)");
 console.log(ast);
-// console.log(parser.getAST("-122 + 2"));
+
+function getTerminalType(ast: IToken): string | null {
+  switch (ast.children.length) {
+    case 0:
+      return ast.type;
+    case 1:
+      return getTerminalType(ast.children[0]);
+    default:
+      return null;
+  }
+}
+
+function transform(ast: IToken): string {
+  switch (ast.type) {
+    case "Expression":
+      return ast.children.map(transform).join("");
+    case "FunctionCall":
+      if (ast.children[0].text === "VLOOKUP") {
+        const args = ast.children[1].children;
+        console.log("Found VLOOKUP", args);
+        const key = args[0];
+        const range = args[1];
+        const offset = args[2];
+        const isSorted = args[3];
+
+        const keyRange = range.text;
+        const valueRange = range.text;
+
+        const sortedType = getTerminalType(isSorted);
+        if (sortedType !== "Boolean") {
+          throw `sorted must be a boolean, not ${sortedType}`;
+        }
+        const matchSort = isSorted.text === "TRUE" ? 1 : 0;
+        return `INDEX(${valueRange}, MATCH(${transform(
+          key
+        )}, ${keyRange}, ${matchSort})`;
+      } else {
+        return ast.children.map(transform).join("");
+      }
+    default:
+      return ast.text;
+  }
+}
+console.log("Transformed:", transform(ast));
 
 const text = ref("=VLOOKUP(F2;tech!B:F;5;FALSE)");
 watch(text, (text) => {
