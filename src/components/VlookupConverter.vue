@@ -169,9 +169,21 @@ formula.value = "=VLOOKUP(F2;tech!B:F;5;FALSE)";
 </script>
 
 <template>
-  <p>VLOOKUP:</p>
+  <h1>Transform VLOOKUP to INDEX/MATCH!</h1>
+  <p>
+    The <code>VLOOKUP</code> formula in Excel and Google Sheets is inefficient,
+    and is prone to break when the target range is restructured. The solution is
+    to use <code>INDEX</code> and <code>MATCH</code>! However, transforming
+    existing formulae is non-trivial and easy to mess up.
+  </p>
+  <p>
+    Hence this conveter tool! Take your existing formula, pop it into the box
+    below, and it will convert all your existing
+    <code>VLOOKUP</code> calls to <code>INDEX-MATCH</code>!
+  </p>
+  <h3>Original formula:</h3>
   <textarea class="input" v-model="formula" />
-  <p>Transformed:</p>
+  <h3>Transformed formula:</h3>
   <pre>{{ transformed }}<span class="unparsed">{{ unparsed }}</span></pre>
 </template>
 
