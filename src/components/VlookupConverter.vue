@@ -129,7 +129,12 @@ function transformVlookup(
     const key = args[0];
     const reference = unpackTo(args[1], "Reference");
     const offset = asNumber(args[2]);
-    const sorted = args.length === 4 ? asBoolean(args[3]) : true;
+    const sorted =
+      args.length === 3
+        ? true
+        : args[3].type == "EmptyArgument"
+        ? false
+        : asBoolean(args[3]);
 
     const keyRange = columnAt(reference, 0);
     const valueRange = columnAt(reference, offset - 1);
