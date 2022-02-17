@@ -131,7 +131,7 @@ function transformVlookup(
     const matchSort = isSorted.text.toUpperCase() === "TRUE" ? 1 : 0;
     const transformedKey = callback(key);
 
-return `INDEX(${valueRange}${argumentSeparator} MATCH(${transformedKey}${argumentSeparator} ${keyRange}${argumentSeparator} ${matchSort})`;
+    return `INDEX(${valueRange}${argumentSeparator} MATCH(${transformedKey}${argumentSeparator} ${keyRange}${argumentSeparator} ${matchSort})`;
   } else {
     return callback(ast);
   }
