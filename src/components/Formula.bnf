@@ -1,9 +1,9 @@
 { ws=explicit }
 Formula ::= "="? Expression { ws=implicit }
 
-Expression ::= AddExpression (WS* ('=' | '<>' | '>=' | '<=' | '>' | '<') WS* AddExpression)? { simplifyWhenOneChildren=true }
-AddExpression ::= MulExpression (WS* ('+' | '-') WS* MulExpression)? { simplifyWhenOneChildren=true }
-MulExpression ::= UnaryExpression (WS* ('*' | '/') WS* UnaryExpression)? { simplifyWhenOneChildren=true }
+Expression ::= AddExpression (WS* ('=' | '<>' | '>=' | '<=' | '>' | '<') WS* Expression)? { simplifyWhenOneChildren=true }
+AddExpression ::= MulExpression (WS* ('+' | '-') WS* AddExpression)? { simplifyWhenOneChildren=true }
+MulExpression ::= UnaryExpression (WS* ('*' | '/') WS* MulExpression)? { simplifyWhenOneChildren=true }
 UnaryExpression ::=  UnaryMinus | FunctionCall | ParenExpression | Reference | Literal | Identifier { simplifyWhenOneChildren=true }
 UnaryMinus ::= !Number '-' AddExpression { pin=2 }
 
@@ -40,7 +40,6 @@ Identifier ::= IDENTIFIER_FIRST_CHAR IDENTIFIER_CHAR* | "'" NON_SINGLE_QUTE* "'"
 IDENTIFIER_FIRST_CHAR ::= ![0-9] IDENTIFIER_CHAR
 IDENTIFIER_CHAR ::= ![\s!()] !"'" !'"' !ARGUMENT_SEPARATOR CHAR
 
-CHARACTER ::= LETTER | DIGIT
 LETTER ::= [a-zA-Z]
 DIGIT ::= [0-9]
 CLOSE_PAREN ::= ")"
