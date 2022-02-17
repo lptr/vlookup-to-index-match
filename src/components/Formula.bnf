@@ -26,8 +26,10 @@ RowRange ::= RowAddress ":" RowAddress
 
 Address ::= CellAddress | ColumnAddress | RowAddress
 CellAddress ::= ColumnAddress RowAddress
-RowAddress ::= "$"? DIGIT+
-ColumnAddress ::= "$"? ( LETTER LETTER | LETTER )
+RowAddress ::= "$"? RelativeRowAddress
+RelativeRowAddress ::= DIGIT+
+ColumnAddress ::= "$"? RelativeColumnAddress
+RelativeColumnAddress ::= ( LETTER LETTER | LETTER )
 
 Number ::= "-"? ("0" | [1-9] [0-9]*) ("." [0-9]+)? (("e" | "E") ( "-" | "+" )? ("0" | [1-9] [0-9]*))?
 Integer ::= "0" | [1-9] [0-9]*
