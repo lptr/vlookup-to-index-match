@@ -31,13 +31,9 @@ function asNumber(ast: IToken): number {
 
 function transform(
   ast: IToken,
-  transformer: (ast: IToken, callback: (ast: IToken) => string) => string | null
+  transformer: (ast: IToken, callback: (ast: IToken) => string) => string
 ): string {
-  const reTransform = (ast: IToken) => transform(ast, transformer);
-  const transformed = transformer(ast, reTransform);
-  if (transformed !== null) {
-    return transformed;
-  } else {
+  return transformer(ast, (ast) => {
     let result = ast.text;
     const offset = ast.start;
     ast.children
@@ -46,11 +42,11 @@ function transform(
       .forEach((child) => {
         result =
           result.slice(0, child.start - offset) +
-          reTransform(child) +
+          transform(child, transformer) +
           result.slice(child.end - offset);
       });
     return result;
-  }
+  });
 }
 
 function incrementColumn(value: string): string {
@@ -85,8 +81,7 @@ function incrementColumn(value: string): string {
 }
 
 function columnAt(ast: IToken, offset: number): string {
-  const reference = unpackTo(ast, "Reference");
-  return transform(reference, (ast, callback) => {
+  return transform(ast, (ast, callback) => {
     if (ast.type === "Range") {
       const start = ast.children[0];
       const end = ast.children[1];
@@ -99,26 +94,26 @@ function columnAt(ast: IToken, offset: number): string {
           }
           return column;
         } else {
-          return null;
+          return callback(ast);
         }
       });
       const endResult = transform(end, (ast, callback) => {
         if (ast.type === "ColumnAddress") {
           return column;
         } else {
-          return null;
+          return callback(ast);
         }
       });
       return `${startResult}:${endResult}`;
     }
-    return null;
+    return callback(ast);
   });
 }
 
 function transformVlookup(
   ast: IToken,
   callback: (ast: IToken) => string
-): string | null {
+): string {
   if (
     ast.type == "FunctionCall" &&
     ast.children[0].text.toUpperCase() === "VLOOKUP" &&
@@ -127,19 +122,18 @@ function transformVlookup(
     const args = ast.children[1].children;
     console.log("Found VLOOKUP", args);
     const key = args[0];
-    const range = args[1];
-    const offset = args[2];
+    const reference = unpackTo(args[1], "Reference");
+    const offset = asNumber(args[2]);
     const isSorted = unpackTo(args[3], "Boolean");
 
-    const keyRange = columnAt(range, 0);
-    const valueRange = columnAt(range, asNumber(offset) - 1);
-
+    const keyRange = columnAt(reference, 0);
+    const valueRange = columnAt(reference, offset - 1);
     const matchSort = isSorted.text.toUpperCase() === "TRUE" ? 1 : 0;
-    return `INDEX(${valueRange}${argumentSeparator} MATCH(${callback(
-      key
-    )}${argumentSeparator} ${keyRange}${argumentSeparator} ${matchSort})`;
+    const transformedKey = callback(key);
+
+return `INDEX(${valueRange}${argumentSeparator} MATCH(${transformedKey}${argumentSeparator} ${keyRange}${argumentSeparator} ${matchSort})`;
   } else {
-    return null;
+    return callback(ast);
   }
 }
 
