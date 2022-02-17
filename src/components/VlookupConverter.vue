@@ -198,7 +198,7 @@ textarea.input {
   width: 40rem;
   height: 10rem;
   display: inline-block;
-  white-space: pre;
+  white-space: pre-wrap;
 }
 .unparsed {
   color: red;
