@@ -8,7 +8,7 @@ UnaryExpression ::=  UnaryMinus | FunctionCall | ParenExpression | Reference | L
 UnaryMinus ::= !Number '-' AddExpression { pin=2 }
 
 FunctionCall ::= Identifier FunctionArguments { ws=implicit }
-FunctionArguments ::= "(" ( Expression (WS* ARGUMENT_SEPARATOR WS* Expression)* )? ")" { pin=1, ws=implicit }
+FunctionArguments ::= "(" ( WS* Expression (WS* ARGUMENT_SEPARATOR WS* Expression)* WS* )? ")" { pin=1, ws=implicit }
 
 Literal ::= Number | Boolean | String { ws=implicit }
 ParenExpression ::= '(' WS* Expression WS* ')' { pin=3, recoverUntil=CLOSE_PAREN }
