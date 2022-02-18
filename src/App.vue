@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import VlookupConverter from "./components/VlookupConverter.vue";
+import { pageview } from "vue-gtag";
+
+pageview({ page_path: "/" });
 </script>
 
 <template>
